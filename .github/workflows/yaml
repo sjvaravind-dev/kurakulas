@@ -1,0 +1,34 @@
+name: Deploy Static PHP to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Change to your default branch
+    paths:
+      - '**.php'  # Only trigger on PHP file changes
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: Convert PHP to Static HTML
+        run: |
+          mkdir output
+          for file in $(find . -name "*.php"); do
+            php "$file" > "output/$(basename "$file" .php).html"
+          done
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: output
